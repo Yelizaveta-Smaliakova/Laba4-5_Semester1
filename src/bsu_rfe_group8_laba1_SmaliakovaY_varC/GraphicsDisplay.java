@@ -217,6 +217,40 @@ public class GraphicsDisplay extends JPanel {
         canvas.draw(new Line2D.Double(xyToPoint(viewport[0][0],viewport[0][1]), xyToPoint(viewport[1][0],viewport[0][1])));
     }
 
+    private void paintLabels(Graphics2D canvas){
+    // Подписи  сетки
+        canvas.setColor(Color.BLACK);
+        canvas.setFont(this.labelsFont);
+        FontRenderContext context=canvas.getFontRenderContext();
+        double labelYPos;
+        double labelXPos;
+        if (!(viewport[1][1] >= 0 || viewport[0][1] <= 0))
+            labelYPos = 0;
+        else labelYPos = viewport[1][1];
+        if (!(viewport[0][0] >= 0 || viewport[1][0] <= 0.0D))
+            labelXPos=0;
+        else labelXPos = viewport[0][0];
+        double pos = viewport[0][0];
+        double step = (viewport[1][0] - viewport[0][0]) / 10;
+        while (pos < viewport[1][0]){
+            java.awt.geom.Point2D.Double point = xyToPoint(pos,labelYPos);
+            String label = formatter.format(pos);
+            Rectangle2D bounds = labelsFont.getStringBounds(label,context);
+            canvas.drawString(label, (float)(point.getX() + 5), (float)(point.getY() - bounds.getHeight()));
+            pos=pos + step;
+        }
+        pos = viewport[1][1];
+        step = (viewport[0][1] - viewport[1][1]) / 10.0D;
+        while (pos < viewport[0][1]){
+            Point2D.Double point = xyToPoint(labelXPos,pos);
+            String label=formatter.format(pos);
+            Rectangle2D bounds = labelsFont.getStringBounds(label,context);
+            canvas.drawString(label,(float)(point.getX() + 5),(float)(point.getY() - bounds.getHeight()));
+            pos=pos + step;
+        }
+
+    }
+
     protected void paintGraphics (Graphics2D canvas) {
         canvas.setStroke(this.graphicsStroke);
         canvas.setColor(Color.RED);
@@ -254,6 +288,7 @@ public class GraphicsDisplay extends JPanel {
         if (showAxis) {
             paintAxis(canvas);
             paintGrid(canvas);
+            paintLabels(canvas);
         }
 
         if (showMarkers) paintMarkers(canvas);
