@@ -262,6 +262,16 @@ public class GraphicsDisplay extends JPanel {
             pos = pos + step;
         }
 
+        if (selectedMarker >= 0)
+        {
+            Point2D.Double point = xyToPoint(((Double[])graphicsData.get(selectedMarker))[0].doubleValue(),
+                    ((Double[])graphicsData.get(selectedMarker))[1].doubleValue());
+            String label = "X=" + formatter.format(((Double[])graphicsData.get(selectedMarker))[0]) +
+                    ", Y=" + formatter.format(((Double[])graphicsData.get(selectedMarker))[1]);
+            Rectangle2D bounds = labelsFont.getStringBounds(label, context);
+            canvas.setColor(Color.BLACK);
+            canvas.drawString(label, (float)(point.getX() + 5.0D), (float)(point.getY() - bounds.getHeight()));
+        }
     }
 
     protected void paintGraphics(Graphics2D canvas) {
