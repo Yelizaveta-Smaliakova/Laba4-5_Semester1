@@ -28,8 +28,7 @@ public class MainFrame extends JFrame
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
-    public MainFrame()
-    {
+    public MainFrame() {
         super("Построение графика функции на основе подготовленных файлов");
         setSize(WIDTH, HEIGHT);
         Toolkit kit = Toolkit.getDefaultToolkit();
@@ -40,17 +39,32 @@ public class MainFrame extends JFrame
         Action openGraphicsAction = new AbstractAction("Открыть") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (fileChooser == null)
-                {
+                if (fileChooser == null) {
                     fileChooser = new JFileChooser();
                     fileChooser.setCurrentDirectory(new File("."));
                 }
-                if (fileChooser.showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION);
+                if (fileChooser.showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) ;
                 openGraphics(fileChooser.getSelectedFile());
             }
         };
         fileMenu.add(openGraphicsAction);
         menuBar.add(fileMenu);
+
+        Action saveToNewGraphicsAction = new AbstractAction("Сохранить измененные данные") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (fileChooser == null) {
+                    fileChooser = new JFileChooser();
+                    fileChooser.setCurrentDirectory(new File("."));
+                }
+                if (fileChooser.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
+                    display.saveToTextFile(fileChooser.getSelectedFile());
+                }
+            }
+        };
+        fileMenu.add(saveToNewGraphicsAction);
+        menuBar.add(fileMenu);
+
 
         JMenu graphicsMenu = new JMenu("График");
 
@@ -73,7 +87,7 @@ public class MainFrame extends JFrame
         };
         showMarkerMenuItem = new JCheckBoxMenuItem(showMarkersAction);
         graphicsMenu.add(showMarkerMenuItem);
-        showMarkerMenuItem.setSelected(false);
+        showMarkerMenuItem.setSelected(true);
 
 
         JMenu spravkaMenu = new JMenu("Справка");

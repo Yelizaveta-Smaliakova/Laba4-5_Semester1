@@ -9,6 +9,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -416,5 +417,24 @@ public class GraphicsDisplay extends JPanel {
             }
             repaint();
         }
+    }
+
+    public void saveToTextFile(File selectedFile) {
+        try{
+            DataOutputStream out = new DataOutputStream(new FileOutputStream(selectedFile));
+            for (Double[] point : graphicsData){
+
+                out.writeDouble((Double)point[0]);
+                out.writeDouble((Double)point[1]);
+            }
+
+            out.close();
+
+        }catch (FileNotFoundException e){
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
