@@ -54,6 +54,15 @@ public class MainFrame extends JFrame
 
         JMenu graphicsMenu = new JMenu("График");
 
+        Action showAxisAction = new AbstractAction("Показывать оси координат") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                display.setShowAxis(showAxisMenuItem.isSelected());
+            }
+        };
+        showAxisMenuItem = new JCheckBoxMenuItem(showAxisAction);
+        graphicsMenu.add(showAxisMenuItem);
+        showAxisMenuItem.setSelected(true);
         menuBar.add(graphicsMenu);
 
         Action showMarkersAction = new AbstractAction("Показывать маркеры точек") {

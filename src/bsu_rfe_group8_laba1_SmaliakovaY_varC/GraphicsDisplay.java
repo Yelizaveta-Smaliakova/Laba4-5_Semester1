@@ -1,7 +1,9 @@
 package bsu_rfe_group8_laba1_SmaliakovaY_varC;
 
 import java.awt.*;
+import java.awt.font.FontRenderContext;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -162,6 +164,58 @@ public class GraphicsDisplay extends JPanel {
         }
     }
 
+    protected void paintAxis(Graphics2D canvas){
+// Оси
+        canvas.setStroke(this.axisStroke);
+        canvas.setColor(java.awt.Color.BLACK);
+        canvas.setFont(this.axisFont);
+        FontRenderContext context=canvas.getFontRenderContext();
+        if (!(viewport[0][0] > 0|| viewport[1][0] < 0)){
+            canvas.draw(new Line2D.Double(xyToPoint(0, viewport[0][1]),
+                    xyToPoint(0, viewport[1][1])));
+            canvas.draw(new Line2D.Double(xyToPoint(-(viewport[1][0] - viewport[0][0]) * 0.0025,
+                    viewport[0][1] - (viewport[0][1] - viewport[1][1]) * 0.015),xyToPoint(0,viewport[0][1])));
+            canvas.draw(new Line2D.Double(xyToPoint((viewport[1][0] - viewport[0][0]) * 0.0025,
+                    viewport[0][1] - (viewport[0][1] - viewport[1][1]) * 0.015),
+                    xyToPoint(0, viewport[0][1])));
+            Rectangle2D bounds = axisFont.getStringBounds("y",context);
+            Point2D.Double labelPos = xyToPoint(0.0, viewport[0][1]);
+            canvas.drawString("y",(float)labelPos.x + 10,(float)(labelPos.y + bounds.getHeight() / 2));
+        }
+        if (!(viewport[1][1] > 0.0D || viewport[0][1] < 0.0D)){
+            canvas.draw(new Line2D.Double(xyToPoint(viewport[0][0],0),
+                    xyToPoint(viewport[1][0],0)));
+            canvas.draw(new Line2D.Double(xyToPoint(viewport[1][0] - (viewport[1][0] - viewport[0][0]) * 0,
+                    (viewport[0][1] - viewport[1][1]) * 0.005), xyToPoint(viewport[1][0], 0)));
+            canvas.draw(new Line2D.Double(xyToPoint(viewport[1][0] - (viewport[1][0] - viewport[0][0]) * 0.01,
+                    -(viewport[0][1] - viewport[1][1]) * 0.005), xyToPoint(viewport[1][0], 0)));
+            Rectangle2D bounds = axisFont.getStringBounds("x",context);
+            Point2D.Double labelPos = xyToPoint(this.viewport[1][0],0.0D);
+            canvas.drawString("x",(float)(labelPos.x - bounds.getWidth() - 10),(float)(labelPos.y - bounds.getHeight() / 2));
+        }
+    }
+
+    protected void paintGraphics (Graphics2D canvas) {
+        canvas.setStroke(this.graphicsStroke);
+        canvas.setColor(Color.RED);
+// Линии
+        Double currentX = null;
+        Double currentY = null;
+        for (Double[] point : this.graphicsData)
+        {
+            if ((point[0].doubleValue() >= this.viewport[0][0]) && (point[1].doubleValue() <= this.viewport[0][1]) &&
+                    (point[0].doubleValue() <= this.viewport[1][0]) && (point[1].doubleValue() >= this.viewport[1][1]))
+            {
+                if ((currentX != null) && (currentY != null)) {
+                    canvas.draw(new Line2D.Double(xyToPoint(currentX.doubleValue(), currentY.doubleValue()),
+                            xyToPoint(point[0].doubleValue(), point[1].doubleValue())));
+                }
+                currentX = point[0];
+                currentY = point[1];
+            }
+        }
+    }
+
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -169,12 +223,15 @@ public class GraphicsDisplay extends JPanel {
         scaleY = this.getSize().getHeight() / (this.viewport[0][1] - this.viewport[1][1]);
         if ((this.graphicsData == null) || (this.graphicsData.size() == 0)) return;
 
-
         Graphics2D canvas = (Graphics2D) g;
         Stroke oldStroke = canvas.getStroke();
         Color oldColor = canvas.getColor();
         Font oldFont = canvas.getFont();
         Paint oldPaint = canvas.getPaint();
+
+        if (showAxis) {
+            paintAxis(canvas);
+        }
 
         if (showMarkers) paintMarkers(canvas);
 
