@@ -165,7 +165,7 @@ public class GraphicsDisplay extends JPanel {
     }
 
     protected void paintAxis(Graphics2D canvas){
-// Оси
+        // Оси
         canvas.setStroke(this.axisStroke);
         canvas.setColor(java.awt.Color.BLACK);
         canvas.setFont(this.axisFont);
@@ -195,10 +195,32 @@ public class GraphicsDisplay extends JPanel {
         }
     }
 
+    //Рисует сетку на графике
+    protected void paintGrid (Graphics2D canvas) {
+        canvas.setStroke(gridStroke);
+        canvas.setColor(Color.GRAY);
+        double pos = viewport[0][0];;
+        double step = (viewport[1][0] - viewport[0][0])/10;
+
+        while (pos < viewport[1][0]){
+            canvas.draw(new Line2D.Double(xyToPoint(pos, viewport[0][1]), xyToPoint(pos, viewport[1][1])));
+            pos += step;
+        }
+        canvas.draw(new Line2D.Double(xyToPoint(viewport[1][0],viewport[0][1]), xyToPoint(viewport[1][0],viewport[1][1])));
+
+        pos = viewport[1][1];
+        step = (viewport[0][1] - viewport[1][1]) / 10;
+        while (pos < viewport[0][1]){
+            canvas.draw(new Line2D.Double(xyToPoint(viewport[0][0], pos), xyToPoint(viewport[1][0], pos)));
+            pos=pos + step;
+        }
+        canvas.draw(new Line2D.Double(xyToPoint(viewport[0][0],viewport[0][1]), xyToPoint(viewport[1][0],viewport[0][1])));
+    }
+
     protected void paintGraphics (Graphics2D canvas) {
         canvas.setStroke(this.graphicsStroke);
         canvas.setColor(Color.RED);
-// Линии
+    // Линии
         Double currentX = null;
         Double currentY = null;
         for (Double[] point : this.graphicsData)
@@ -231,6 +253,7 @@ public class GraphicsDisplay extends JPanel {
 
         if (showAxis) {
             paintAxis(canvas);
+            paintGrid(canvas);
         }
 
         if (showMarkers) paintMarkers(canvas);
