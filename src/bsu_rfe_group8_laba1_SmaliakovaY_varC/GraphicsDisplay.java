@@ -33,6 +33,7 @@ public class GraphicsDisplay extends JPanel {
     private ArrayList<double[][]> undoHistory = new ArrayList(5);
     private boolean showAxis = true;
     private boolean showMarkers = true;
+    private boolean showTurning = false;
     private boolean clockRotate = false;
     private boolean antiClockRotate = false;
 
@@ -113,6 +114,11 @@ public class GraphicsDisplay extends JPanel {
     //Отображение маркеров
     public void setShowMarkers(boolean showMarkers) {
         this.showMarkers = showMarkers;
+        repaint();
+    }
+
+    public void setTurningAction(boolean showTurning){
+        this.showTurning = showTurning;
         repaint();
     }
 
@@ -310,6 +316,7 @@ public class GraphicsDisplay extends JPanel {
             paintAxis(canvas);
             paintGrid(canvas);
             paintLabels(canvas);
+            paintGraphics(canvas);
         }
 
         if (showMarkers) paintMarkers(canvas);

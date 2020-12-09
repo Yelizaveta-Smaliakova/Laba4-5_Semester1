@@ -89,6 +89,16 @@ public class MainFrame extends JFrame
         graphicsMenu.add(showMarkerMenuItem);
         showMarkerMenuItem.setSelected(true);
 
+        Action showTurningAction = new AbstractAction("Поворот") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                display.setTurningAction(showMarkerMenuItem.isSelected());
+            }
+        };
+        showMarkerMenuItem = new JCheckBoxMenuItem(showTurningAction);
+        graphicsMenu.add(showMarkerMenuItem);
+        showMarkerMenuItem.setSelected(false);
+
 
         JMenu spravkaMenu = new JMenu("Справка");
         menuBar.add(spravkaMenu);
