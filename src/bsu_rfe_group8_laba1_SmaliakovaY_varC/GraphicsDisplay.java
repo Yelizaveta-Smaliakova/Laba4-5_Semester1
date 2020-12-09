@@ -1,0 +1,195 @@
+package bsu_rfe_group8_laba1_SmaliakovaY_varC;
+
+import java.awt.*;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+
+import javax.swing.JPanel;
+
+public class GraphicsDisplay extends JPanel {
+
+    private ArrayList<Double[]> graphicsData;
+    private ArrayList<Double[]> originalData;
+    private int selectedMarker = -1;
+    private double minX;
+    private double maxX;
+    private double minY;
+    private double maxY;
+
+    private double scaleX;
+    private double scaleY;
+
+    private double[][] viewport = new double[2][2];
+    private ArrayList<double[][]> undoHistory = new ArrayList(5);
+    private boolean showAxis = true;
+    private boolean showMarkers = true;
+    private boolean clockRotate = false;
+    private boolean antiClockRotate = false;
+
+    private Font axisFont;
+    private Font labelsFont;
+
+    private BasicStroke axisStroke;
+    private BasicStroke graphicsStroke;
+    private BasicStroke markerStroke;
+    private BasicStroke gridStroke;
+    private BasicStroke selectionStroke;
+    private static DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance();
+
+    private boolean scaleMode = false;
+    private boolean changeMode = false;
+    private double[] originalPoint = new double[2];
+    private Rectangle2D.Double selectionRect = new Rectangle2D.Double();
+
+    public GraphicsDisplay() {
+        setBackground(Color.white);
+        graphicsStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f,
+                new float[]{5, 2, 5, 2, 5, 2, 2, 2, 2, 2, 2, 2}, 0.0f);
+        axisStroke = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 10.0f, null, 0.0f);
+        markerStroke = new BasicStroke(1.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 5.0f, null, 0.0f);
+        selectionStroke = new BasicStroke(1.0F, 0, 0, 10.0F, new float[]{10, 10}, 0.0F);
+        gridStroke = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 5.0f, new float[]{5, 5}, 2.0f);
+        axisFont = new Font("Serif", Font.BOLD, 36);
+        labelsFont = new java.awt.Font("Serif", 0, 10);
+    }
+
+    //Размер поля для графика
+    public void showGraphics(ArrayList<Double[]> graphicsData) {
+        this.graphicsData = graphicsData;
+
+
+        this.originalData = new ArrayList(graphicsData.size());
+        for (Double[] point : graphicsData) {
+            Double[] newPoint = new Double[2];
+            newPoint[0] = new Double(point[0].doubleValue());
+            newPoint[1] = new Double(point[1].doubleValue());
+            this.originalData.add(newPoint);
+        }
+        this.minX = ((Double[]) graphicsData.get(0))[0].doubleValue();
+        this.maxX = ((Double[]) graphicsData.get(graphicsData.size() - 1))[0].doubleValue();
+        this.minY = ((Double[]) graphicsData.get(0))[1].doubleValue();
+        this.maxY = this.minY;
+
+        for (int i = 1; i < graphicsData.size(); i++) {
+            if (((Double[]) graphicsData.get(i))[1].doubleValue() < this.minY) {
+                this.minY = ((Double[]) graphicsData.get(i))[1].doubleValue();
+            }
+            if (((Double[]) graphicsData.get(i))[1].doubleValue() > this.maxY) {
+                this.maxY = ((Double[]) graphicsData.get(i))[1].doubleValue();
+            }
+        }
+
+        zoomToRegion(minX, maxY, maxX, minY);
+
+    }
+
+    //Приближения на выделенную область
+    public void zoomToRegion(double x1, double y1, double x2, double y2) {
+        this.viewport[0][0] = x1;
+        this.viewport[0][1] = y1;
+        this.viewport[1][0] = x2;
+        this.viewport[1][1] = y2;
+        this.repaint();
+    }
+
+    //Отображение осей
+    public void setShowAxis(boolean showAxis) {
+        this.showAxis = showAxis;
+        repaint();
+    }
+
+    //Отображение маркеров
+    public void setShowMarkers(boolean showMarkers) {
+        this.showMarkers = showMarkers;
+        repaint();
+    }
+
+    //Смещение по отношение к исходному
+    protected Point2D.Double xyToPoint(double x, double y) {
+        double deltaX = x - viewport[0][0];
+        double deltaY = viewport[0][1] - y;
+        return new Point2D.Double(deltaX * scaleX, deltaY * scaleY);
+    }
+
+    protected double[] translatePointToXY(int x, int y) {
+        return new double[]{this.viewport[0][0] + x / this.scaleX, this.viewport[0][1] - y / this.scaleY};
+    }
+
+    protected void paintMarkers(Graphics2D canvas) {
+        canvas.setStroke(this.markerStroke);
+        canvas.setColor(Color.RED);
+        canvas.setPaint(Color.RED);
+        GeneralPath lastMarker = null;
+        int i = -1;
+        for (Double[] point : graphicsData) {
+            i++;
+
+            GeneralPath star = new GeneralPath();
+            Point2D.Double center = xyToPoint(point[0], point[1]);
+            star.moveTo(center.getX(), center.getY());
+            star.lineTo(star.getCurrentPoint().getX(), star.getCurrentPoint().getY() - 5);
+            star.moveTo(star.getCurrentPoint().getX() - 3, star.getCurrentPoint().getY());
+            star.lineTo(star.getCurrentPoint().getX() + 6, star.getCurrentPoint().getY());
+            star.moveTo(center.getX(), center.getY());
+            star.lineTo(star.getCurrentPoint().getX(), star.getCurrentPoint().getY() + 5);
+            star.moveTo(star.getCurrentPoint().getX() - 3, star.getCurrentPoint().getY());
+            star.lineTo(star.getCurrentPoint().getX() + 6, star.getCurrentPoint().getY());
+            star.moveTo(center.getX(), center.getY());
+            star.lineTo(star.getCurrentPoint().getX() - 5, star.getCurrentPoint().getY());
+            star.moveTo(star.getCurrentPoint().getX(), star.getCurrentPoint().getY() - 3);
+            star.lineTo(star.getCurrentPoint().getX(), star.getCurrentPoint().getY() + 6);
+            star.moveTo(center.getX(), center.getY());
+            star.lineTo(star.getCurrentPoint().getX() + 5, star.getCurrentPoint().getY());
+            star.moveTo(star.getCurrentPoint().getX(), star.getCurrentPoint().getY() - 3);
+            star.lineTo(star.getCurrentPoint().getX(), star.getCurrentPoint().getY() + 6);
+            if (i == this.selectedMarker) {
+                lastMarker = star;
+            } else {
+                canvas.draw(star);
+                canvas.fill(star);
+            }
+        }
+
+        if (lastMarker != null) {
+            canvas.setColor(Color.BLUE);
+            canvas.setPaint(Color.BLUE);
+            canvas.draw(lastMarker);
+            canvas.fill(lastMarker);
+        }
+    }
+
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        scaleX = this.getSize().getWidth() / (this.viewport[1][0] - this.viewport[0][0]);
+        scaleY = this.getSize().getHeight() / (this.viewport[0][1] - this.viewport[1][1]);
+        if ((this.graphicsData == null) || (this.graphicsData.size() == 0)) return;
+
+
+        Graphics2D canvas = (Graphics2D) g;
+        Stroke oldStroke = canvas.getStroke();
+        Color oldColor = canvas.getColor();
+        Font oldFont = canvas.getFont();
+        Paint oldPaint = canvas.getPaint();
+
+        if (showMarkers) paintMarkers(canvas);
+
+        paintSelection(canvas);
+        canvas.setFont(oldFont);
+        canvas.setPaint(oldPaint);
+        canvas.setColor(oldColor);
+        canvas.setStroke(oldStroke);
+
+    }
+
+    private void paintSelection(Graphics2D canvas) {
+        if (!scaleMode) return;
+        canvas.setStroke(selectionStroke);
+        canvas.setColor(Color.BLACK);
+        canvas.draw(selectionRect);
+    }
+}
