@@ -131,9 +131,15 @@ public class GraphicsDisplay extends JPanel {
         canvas.setColor(Color.RED);
         canvas.setPaint(Color.RED);
         GeneralPath lastMarker = null;
+
         int i = -1;
         for (Double[] point : graphicsData) {
             i++;
+
+            if(point[1] > 0)
+                canvas.setColor(Color.GREEN);
+            else
+                canvas.setColor(Color.RED);
 
             GeneralPath star = new GeneralPath();
             Point2D.Double center = xyToPoint(point[0], point[1]);
