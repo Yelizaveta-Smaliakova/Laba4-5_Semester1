@@ -17,6 +17,7 @@ public class MainFrame extends JFrame
 
     private JCheckBoxMenuItem showAxisMenuItem;
     private JCheckBoxMenuItem showMarkerMenuItem;
+    private JCheckBoxMenuItem showTurningMenuItem;
 
     private GraphicsDisplay display = new GraphicsDisplay();
 
@@ -92,12 +93,12 @@ public class MainFrame extends JFrame
         Action showTurningAction = new AbstractAction("Поворот") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                display.setTurningAction(showMarkerMenuItem.isSelected());
+                display.setTurningAction(showTurningMenuItem.isSelected());
             }
         };
-        showMarkerMenuItem = new JCheckBoxMenuItem(showTurningAction);
-        graphicsMenu.add(showMarkerMenuItem);
-        showMarkerMenuItem.setSelected(false);
+        showTurningMenuItem = new JCheckBoxMenuItem(showTurningAction);
+        graphicsMenu.add(showTurningMenuItem);
+        showTurningMenuItem.setSelected(false);
 
 
         JMenu spravkaMenu = new JMenu("Справка");

@@ -316,8 +316,8 @@ public class GraphicsDisplay extends JPanel {
             paintAxis(canvas);
             paintGrid(canvas);
             paintLabels(canvas);
-            paintGraphics(canvas);
         }
+        paintGraphics(canvas);
 
         if (showMarkers) paintMarkers(canvas);
 
